@@ -1,0 +1,10 @@
+name: Adding the first product updates the cart badge to 1
+priority: HIGH
+automation_type: WEB
+tags: [cart, smoke]
+web_config: { baseUrl: "{{BASE_URL}}" }
+web_steps:
+  - { order: 1, action: navigate, value: "{{BASE_URL}}/index.html", description: "Open the home page with an empty cart" }
+  - { order: 2, action: expect_text, target: "testid=cart-badge", assertionValue: "0", description: "Cart badge starts at 0" }
+  - { order: 3, action: click, target: "testid=add-1", description: "Click Add to cart on the first product (Wireless Mouse)" }
+  - { order: 4, action: expect_text, target: "testid=cart-badge", assertionValue: "1", description: "Cart badge now shows 1" }

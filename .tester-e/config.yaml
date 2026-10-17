@@ -1,0 +1,12 @@
+project_id: 2620cdb6-3569-4178-8105-629d280b5730
+repo: tester-e-trial
+environment: staging
+environments:
+  staging:
+    scope: all
+    variables:
+      BASE_URL: https://app.tester-e.com/__fixture
+plans:
+  regression:
+    name: "Regression"
+    suites: [home, cart, api]

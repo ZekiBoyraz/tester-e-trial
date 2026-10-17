@@ -1,0 +1,9 @@
+name: Home page shows the product catalogue
+priority: HIGH
+automation_type: WEB
+tags: [home, smoke]
+web_config: { baseUrl: "{{BASE_URL}}" }
+web_steps:
+  - { order: 1, action: navigate, value: "{{BASE_URL}}/index.html", description: "Open the home page" }
+  - { order: 2, action: expect_visible, target: "testid=catalog", description: "The product catalogue grid is on the page" }
+  - { order: 3, action: expect_visible, target: "testid=product-1", description: "The first product tile is rendered inside the catalogue" }

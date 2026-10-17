@@ -1,0 +1,7 @@
+{
+  "enabledPlugins": {
+    "tester-e@tester-e": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  }
+}

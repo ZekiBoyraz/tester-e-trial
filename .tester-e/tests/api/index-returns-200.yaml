@@ -1,0 +1,13 @@
+name: GET /index.html returns 200 and contains "te Shop"
+priority: HIGH
+automation_type: API
+tags: [smoke, home]
+api_config: { base_url: "{{BASE_URL}}" }
+api_steps:
+  - order: 1
+    name: Fetch home page
+    method: GET
+    url: "{{BASE_URL}}/index.html"
+    assertions:
+      - { type: status_code, operator: equals, expected: 200 }
+      - { type: body_contains, operator: contains, expected: "te Shop" }
