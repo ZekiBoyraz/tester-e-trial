@@ -14,22 +14,29 @@ jobs:
         type: [WEB, API]
     env:
       TESTER_E_URL: https://app.tester-e.com
+      TESTER_E_API_KEY: ${{ secrets.TESTER_E_API_KEY }}
       PLAN_ID: d0bf6782-b920-4b7b-a380-6957792b029c
       ENVIRONMENT: staging
+      TYPE: ${{ matrix.type }}
+      COMMIT: ${{ github.sha }}
+      BRANCH: ${{ github.ref_name }}
+      RUN_ID: ${{ github.run_id }}
     steps:
       - name: Trigger and wait
         run: |
-          set -euo pipefail
+          set -eu
           BODY=$(curl -sS -f -X POST "$TESTER_E_URL/api/test-management/api/v1/webhooks/trigger" \
-            -H "Authorization: Bearer ${{ secrets.TESTER_E_API_KEY }}" -H "Content-Type: application/json" \
-            -d "{\"test_plan_id\":\"$PLAN_ID\",\"execution_type\":\"${{ matrix.type }}\",\"environment\":\"$ENVIRONMENT\",\"metadata\":{\"commit_sha\":\"${{ github.sha }}\",\"branch\":\"${{ github.ref_name }}\",\"run_id\":\"${{ github.run_id }}\"}}")
+            -H "Authorization: Bearer $TESTER_E_API_KEY" -H "Content-Type: application/json" \
+            -d "{\"test_plan_id\":\"$PLAN_ID\",\"execution_type\":\"$TYPE\",\"environment\":\"$ENVIRONMENT\",\"metadata\":{\"commit_sha\":\"$COMMIT\",\"branch\":\"$BRANCH\",\"run_id\":\"$RUN_ID\"}}")
           ID=$(echo "$BODY" | jq -r '.batch_id')
-          for i in $(seq 1 90); do
+          i=0
+          while [ $i -lt 90 ]; do
+            i=$((i + 1))
             R=$(curl -sS "$TESTER_E_URL/api/test-management/api/v1/webhooks/status/$ID" \
-                -H "Authorization: Bearer ${{ secrets.TESTER_E_API_KEY }}") || true
+                -H "Authorization: Bearer $TESTER_E_API_KEY") || true
             S=$(echo "$R" | jq -r '.status // "UNKNOWN"')
-            echo "[$i] $S — passed $(echo "$R" | jq -r '.passed // 0') / failed $(echo "$R" | jq -r '.failed // 0')"
+            echo "[$i] $TYPE $S — passed $(echo "$R" | jq -r '.passed // 0') / failed $(echo "$R" | jq -r '.failed // 0')"
             case "$S" in COMPLETED) exit 0;; FAILED|CANCELLED) exit 1;; esac
             sleep 20
           done
-          echo "::error::timed out"; exit 1
+          echo "timed out"; exit 1
